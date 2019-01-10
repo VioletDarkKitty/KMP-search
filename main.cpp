@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <iostream>
 
 /**
  * Performs a substring search using the KMP algorithm
@@ -15,7 +16,7 @@
  */
 int KMP_search(char* subject, char* pattern, unsigned int begin = 0) {
 	unsigned int pattern_length = strlen(pattern);
-	char* kmp_arr = (char*) calloc(pattern_length, sizeof(char));
+	unsigned int* kmp_arr = (unsigned int*) calloc(pattern_length, sizeof(unsigned int));
 	if (kmp_arr == NULL) {
 		return -2;
 	}
@@ -30,6 +31,10 @@ int KMP_search(char* subject, char* pattern, unsigned int begin = 0) {
 		}
 		
 		kmp_arr[i] = j;
+	}
+	
+	for(i = 0; i < pattern_length; i++) {
+		std::cout << pattern[i] << ":" << kmp_arr[i] << std::endl;
 	}
 	
 	unsigned int subject_length = strlen(subject);
@@ -49,8 +54,11 @@ int KMP_search(char* subject, char* pattern, unsigned int begin = 0) {
 			}
 			
 			if (subject[i] != pattern[j]) {
-				j = kmp_arr[j - 1]; // j can never be 0
-			}
+                i += j - kmp_arr[j - 1] - 1; // j can never be 0
+				if (i >= subject_length) {
+					break;
+				}
+            }
 		}
 	}
 	
@@ -67,7 +75,7 @@ int naive_search(char* subject, char* pattern, unsigned int begin = 0) {
 		if (subject[i] == pattern[j]) {
 			unsigned int begin_pos = i;
 			while (subject[i] == pattern[j]) {
-				if (j == pattern_len) {
+                if (j == pattern_len - 1) {
 					return begin_pos;
 				}
 				
@@ -85,8 +93,8 @@ int naive_search(char* subject, char* pattern, unsigned int begin = 0) {
 }
 
 int main(int argc, char** argv) {
-	char search[] = "hello world sjfubsejfbshjfbcsshjfbjhfbhjdfbshjfbcsjdbkqjsbdvjbn";
-	char pattern[] = "jfbcsj";
+	char search[] = "ATCGTGCCCCGTCCCCGGGGGTTTTCCCAAAAAAAATTTCCCAAATTCCCCCCCTTTTTTTTCCCCATACTTCTCTCACTCTCTCACAGGGGGGGGGAAATTTCCCGGGAAATTTCCCTTTCCCAAATTTCCCGGGAAACCCTTTAAACCCGGGTTTCCCAAA";
+    char pattern[] = "TCCCTTT";
 	int match_pos = KMP_search(search, pattern);
 	int match_pos2 = naive_search(search, pattern);
 	
